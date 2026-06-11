@@ -204,7 +204,9 @@ There's two ways to get the data:
 Plug the board into USB and run:
 
 ```bash
-python pull_logs.py /dev/ttyUSB0
+python pull_logs.py COM4              # Windows
+python pull_logs.py /dev/ttyUSB0      # Linux
+python pull_logs.py /dev/cu.usbserial-*  # macOS
 ```
 
 This dumps the log partition from flash and extracts `battery_log.csv` and `boot_log.csv` to your current folder. Requires esptool — `pip install esptool`.
