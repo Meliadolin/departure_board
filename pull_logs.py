@@ -29,7 +29,7 @@ PARTITION_SIZE = 0x40000  # 256 KB (increase to 0x200000 for full 2 MB)
 def main():
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <COM_PORT>")
-        print(f"Example: {sys.argv[0]} COM4")
+        print(f"Example: {sys.argv[0]} /dev/ttyUSB0")
         sys.exit(1)
 
     port = sys.argv[1]
