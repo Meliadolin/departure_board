@@ -29,9 +29,13 @@ PARTITION_SIZE = 0x40000  # 256 KB (increase to 0x200000 for full 2 MB)
 def main():
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <COM_PORT>")
-        print(f"Example: {sys.argv[0]} COM4   (Windows)")
-        print(f"       {sys.argv[0]} /dev/ttyUSB0   (Linux)")
-        print(f"       {sys.argv[0]} /dev/cu.usbserial-*   (macOS)")
+        print(f"")
+        print(f"Replace COM_PORT with your board's serial port.")
+        print(f"  Windows: COM3, COM4, etc.")
+        print(f"  Linux:   /dev/ttyUSB0, /dev/ttyACM0, etc.")
+        print(f"  macOS:   /dev/cu.usbserial-*, /dev/cu.usbmodem*")
+        print(f"")
+        print(f"Example: {sys.argv[0]} COM4")
         sys.exit(1)
 
     port = sys.argv[1]
