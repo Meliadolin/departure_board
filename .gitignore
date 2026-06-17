@@ -13,6 +13,7 @@
 # Temp artifacts (esptool dumps, extracted CSV, scripts)
 *.bin
 battery_log.csv
+boot_log.csv
 analyze_battery.py
 extract_csv.py
 

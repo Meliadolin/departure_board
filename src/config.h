@@ -1,10 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define WIFI_SSID "YourWiFiName"
-#define WIFI_PASSWORD "YourWiFiPassword"
-#define PID_API_KEY "your-api-key-here"
-#define PID_STOP "YourStopName"
+#define WIFI_SSID "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+#define PID_API_KEY "YOUR_GOLEMIO_API_KEY"
+#define PID_STOP "YOUR_STOP_NAME"
 
 #define SHOW_METRO true
 #define SHOW_TRAM true
@@ -13,10 +13,10 @@
 #define SHOW_HEADER true
 #define INVERT_COLORS false
 
-#define REFRESH_RATE 60
+#define REFRESH_RATE 120
 
 #define LOG_EVERY_N_REFRESHES 1 // Log battery every N refresh cycles
-#define FORMAT_LITTLEFS true
+#define FORMAT_LITTLEFS false
 
 #define MAX_METRO 4
 #define MAX_TRAM 8
@@ -25,7 +25,7 @@
 #define MAX_FERRY 4
 #define MAX_OTHER 4
 
-#define QUIET_HOURS_ENABLED false
+#define QUIET_HOURS_ENABLED true
 #define QH_START 23
 #define QH_END 6
 #define QH_REFRESH_INTERVAL 15

@@ -7,7 +7,6 @@
 #include <time.h>
 #include <esp_task_wdt.h>
 #include "config.h"
-#include "CRC32.h"
 #include "logger.h"
 #include "battery.h"
 #include "wifi_manager.h"
@@ -17,7 +16,6 @@
 GxEPD2_BW<GxEPD2_420_GDEY042T81, GxEPD2_420_GDEY042T81::HEIGHT> display(GxEPD2_420_GDEY042T81(EPD_CS, EPD_DC, EPD_RST, EPD_BUSY));
 U8G2_FOR_ADAFRUIT_GFX u8g2;
 std::vector<String> displayLines;
-RTC_DATA_ATTR uint32_t lastDisplayHash = 0;
 String currentStopName = PID_STOP;
 
 void setup() {
@@ -53,6 +51,7 @@ void setup() {
   }
 
   if (isQuietHour()) {
+    getData();
     uint32_t sleepSeconds = calculateQuietHoursSleepDuration();
     Serial.printf("Quiet hours. Sleeping %d seconds.\n", sleepSeconds);
     WiFi.disconnect(false);
@@ -67,7 +66,6 @@ void loop() {
   static bool firstLoop = true;
   static unsigned long lastCheck = 0;
   static unsigned long lastReconnect = 0;
-  static unsigned long lastStatusOutput = 0;
 
   if (firstLoop) {
     delay(1000);
@@ -108,25 +106,13 @@ void loop() {
   }
 
   if (isQuietHour()) {
-    delay(1000);
-    return;
+    getData();
+    uint32_t sleepSeconds = calculateQuietHoursSleepDuration();
+    Serial.printf("Quiet hours. Sleeping %d seconds.\n", sleepSeconds);
+    WiFi.disconnect(false);
+    display.powerOff();
+    esp_deep_sleep(sleepSeconds * 1000000ULL);
   }
-
-  if (millis() - lastStatusOutput > 10000 || lastStatusOutput == 0) {
-    Serial.println("\n=== STATUS ===");
-    Serial.printf("WiFi: %s | IP: %s | RSSI: %d dBm\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
-    Serial.printf("Battery: %.2fV | Stop: %s | Refresh: %ds | Heap: %d KB\n", getBatteryVoltage(), currentStopName.c_str(), REFRESH_RATE, ESP.getFreeHeap() / 1024);
-    struct tm timeinfo;
-    if (getLocalTime(&timeinfo)) {
-      Serial.printf("Time: %02d:%02d:%02d\n", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-    }
-    Serial.println("=== END STATUS ===\n");
-    Serial.flush();
-    lastStatusOutput = millis();
-  }
-
-  Serial.print(".");
-  if (millis() % 60000 < 100) Serial.println();
 
   if (millis() - lastCheck > (REFRESH_RATE * 1000) || lastCheck == 0) {
     getData();
@@ -142,7 +128,16 @@ void loop() {
     } else {
       lastCheck = millis();
     }
+    Serial.printf("Refresh done. Batt: %.2fV | RSSI: %ddBm\n", getBatteryVoltage(), WiFi.RSSI());
+    Serial.flush();
   }
 
-  delay(100);
+  uint32_t timeUntilNext = (lastCheck + (REFRESH_RATE * 1000)) - millis();
+  if (timeUntilNext > 1000 && timeUntilNext < (REFRESH_RATE * 1000)) {
+    Serial.printf("Light sleep %dms\n", timeUntilNext);
+    Serial.flush();
+    WiFi.disconnect(false);
+    esp_sleep_enable_timer_wakeup(timeUntilNext * 1000ULL);
+    esp_light_sleep_start();
+  }
 }

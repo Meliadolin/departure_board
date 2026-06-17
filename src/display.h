@@ -5,12 +5,10 @@
 #include <GxEPD2_BW.h>
 #include <U8g2_for_Adafruit_GFX.h>
 #include "config.h"
-#include "CRC32.h"
 
 extern GxEPD2_BW<GxEPD2_420_GDEY042T81, GxEPD2_420_GDEY042T81::HEIGHT> display;
 extern U8G2_FOR_ADAFRUIT_GFX u8g2;
 extern std::vector<String> displayLines;
-extern RTC_DATA_ATTR uint32_t lastDisplayHash;
 
 void initDisplay() {
   SPI.begin(EPD_SCK, -1, EPD_MOSI, EPD_CS);
@@ -112,22 +110,7 @@ void drawBatteryIcon(float voltage) {
 }
 
 void updateDisplay() {
-  CRC32 crc;
-  size_t start_index = (SHOW_HEADER && displayLines.size() > 0) ? 1 : 0;
-  for (size_t i = start_index; i < displayLines.size(); i++) {
-    String line = displayLines[i];
-    int parenPos = line.indexOf(" (");
-    if (parenPos != -1) line = line.substring(0, parenPos);
-    crc.update(line.c_str());
-  }
-  uint32_t currentHash = crc.finalize();
-
-  if (lastDisplayHash == 0 || currentHash != lastDisplayHash) {
-    lastDisplayHash = currentHash;
-    display.setFullWindow();
-  } else {
-    display.setPartialWindow(0, 0, display.width(), display.height());
-  }
+  display.setFullWindow();
 
   const uint8_t* selectedFont = u8g2_font_helvB08_te;
   int lineHeight = 12;

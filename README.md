@@ -155,21 +155,23 @@ How many departures per transport type to show:
 
 | Setting | Default | What it does |
 |---------|---------|--------------|
-| `REFRESH_RATE` | `60` | Seconds between display updates |
-| `LOG_EVERY_N_REFRESHES` | `1` | Log battery + WiFi every N refreshes (1 = every 60s, 6 = every 6 minutes) |
+| `REFRESH_RATE` | `120` | Seconds between display updates |
+| `LOG_EVERY_N_REFRESHES` | `1` | Log battery + WiFi every N refreshes (1 = every 120s, 6 = every 12 minutes) |
 
 ### Quiet hours
 
-Stop updating during night hours to save battery:
+Reduce display updates during night hours to save battery:
 
 ```cpp
-#define QUIET_HOURS_ENABLED false
+#define QUIET_HOURS_ENABLED true
 #define QH_START 23  // 11 PM
 #define QH_END 6     // 6 AM
 #define QH_REFRESH_INTERVAL 15  // Check every 15 minutes during quiet hours
 ```
 
-When quiet hours are active, the last timetable stays on the display. The board wakes up periodically to check if quiet hours are over, goes back to sleep if not.
+During quiet hours, the board enters **deep sleep** and wakes every `QH_REFRESH_INTERVAL` minutes to fetch fresh data. Between wakes, it draws ~10µA.
+
+During active hours (6 AM – 11 PM), the board uses **light sleep** between refreshes. The display stays powered (retaining its internal RAM), so partial refreshes work when departure data hasn't changed. Between refreshes, it draws ~0.13mA instead of the ~45mA that an active loop would draw.
 
 ### Battery monitoring
 
@@ -226,11 +228,13 @@ If you need to wipe the logs without reflashing, just set this to `true`, flash 
 
 ## Power
 
-**Wall power (USB):** Always-on mode. The board stays awake and refreshes every `REFRESH_RATE` seconds. Draws ~30mA idle.
+**Wall power (USB):** The board stays awake and refreshes every `REFRESH_RATE` seconds. Draws ~30mA idle.
 
-**Battery power:** Deep sleep between refresh cycles. Wakes up, fetches data, updates display, goes back to sleep. Draws ~5µA sleeping, ~80mA for ~5 seconds during refresh.
+**Battery power (active hours):** Light sleep between refresh cycles. The ESP32-C3 enters light sleep (~0.13mA) while the display stays powered. WiFi disconnects before sleep and reconnects on wake. Each refresh cycle takes ~5-8 seconds at ~150mA (WiFi TX + display update).
 
-A 700mAh battery will last about 2-3 days with 60-second refresh rate. Expect longer if you enable quiet hours.
+**Battery power (quiet hours):** Deep sleep between refresh cycles. The ESP32-C3 and display both power down (~10µA). Wakes every `QH_REFRESH_INTERVAL` minutes to fetch data and update the display.
+
+A 700mAh battery will last about 3-4 days with 120-second refresh rate and quiet hours enabled. Larger batteries scale proportionally.
 
 ## Known issues
 
