@@ -40,6 +40,15 @@ void initLogger() {
   }
   bootCount++;
   File bootLog = LittleFS.open("/boot.csv", FILE_APPEND);
+  if (!bootLog) {
+    Serial.println("WARN: Creating new boot.csv");
+    bootLog = LittleFS.open("/boot.csv", FILE_WRITE);
+    if (bootLog) {
+      bootLog.println("timestamp,boot_count");
+      bootLog.close();
+      bootLog = LittleFS.open("/boot.csv", FILE_APPEND);
+    }
+  }
   if (bootLog) {
     struct tm timeinfo;
     if (getLocalTime(&timeinfo)) {
@@ -50,13 +59,29 @@ void initLogger() {
       bootLog.printf("--:--,%lu\n", (unsigned long)bootCount);
     }
     bootLog.close();
+  } else {
+    Serial.println("ERR: Cannot write boot.csv");
   }
 }
 
 void logBatteryData() {
-  if (!LittleFS.begin(false)) return;
+  if (!LittleFS.begin(false)) {
+    Serial.println("WARN: LittleFS mount failed, reformatting...");
+    if (!LittleFS.begin(true)) {
+      Serial.println("ERR: LittleFS mount failed after format");
+      return;
+    }
+  }
   File logFile = LittleFS.open("/battery.csv", FILE_APPEND);
-  if (!logFile) return;
+  if (!logFile) {
+    Serial.println("WARN: Creating new battery.csv");
+    logFile = LittleFS.open("/battery.csv", FILE_WRITE);
+    if (!logFile) { Serial.println("ERR: Cannot create battery.csv"); return; }
+    logFile.println("timestamp,voltage_v,wifi_rssi,boot_count");
+    logFile.close();
+    logFile = LittleFS.open("/battery.csv", FILE_APPEND);
+    if (!logFile) { Serial.println("ERR: Cannot reopen battery.csv"); return; }
+  }
   float voltage = getBatteryVoltage();
   struct tm timeinfo;
   if (getLocalTime(&timeinfo)) {
@@ -71,8 +96,11 @@ void logBatteryData() {
 
 void dumpCSV(const char* filename) {
   if (!LittleFS.begin(false)) {
-    Serial.println("Cannot mount LittleFS");
-    return;
+    Serial.println("WARN: LittleFS mount failed for dump, retrying...");
+    if (!LittleFS.begin(true)) {
+      Serial.println("ERR: Cannot mount LittleFS for dump");
+      return;
+    }
   }
   File f = LittleFS.open(filename, FILE_READ);
   if (!f) {
