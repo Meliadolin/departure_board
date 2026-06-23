@@ -1,10 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define WIFI_SSID "YOUR_WIFI_SSID"
-#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
-#define PID_API_KEY "YOUR_GOLEMIO_API_KEY"
-#define PID_STOP "YOUR_STOP_NAME"
+#define WIFI_SSID "Thot_2.4"
+#define WIFI_PASSWORD "TpCrumb_*-*"
+#define PID_API_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDQyNSwiaWF0IjoxNzY2MzcxMzkzLCJleHAiOjExNzY2MzcxMzkzLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiZTQ5OGYwZGQtM2U5MC00ZjE4LTg5YTMtMjBmODNiOGUwNDdmIn0.czDhxf2bvW80GRbIRUmc_59UVUrHYWk15tlL26Op-no"
+#define PID_STOP "Hradčanská"
 
 #define SHOW_METRO true
 #define SHOW_TRAM true
