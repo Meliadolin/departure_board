@@ -2,7 +2,7 @@
 
 A little e-paper display that hangs on the wall and shows when the next tram/metro/bus is coming to your stop. No apps, no web interface, no cloud dashboard. Just departures.
 
-Built for Prague's PID system using the [Golemio API](https://api.golemio.cz/docs/public-openapi/), but the API code could be adapted for any city with a similar transit feed.
+Built for Prague's PID system using the [Golemio API](https://api.golemio.cz/pid/docs/openapi/#/), but the API code could be adapted for any city with a similar transit feed.
 
 ## What it looks like
 
